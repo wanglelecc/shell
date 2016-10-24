@@ -36,7 +36,10 @@ class image{
 		 	$site_content = file_get_contents($this->url);
 		 }
 
-		 file_put_contents('test.log', $site_content);
+		 if(empty($site_content)){
+		 	throw new Exception("get content is null.", 1);
+		 	
+		 }
 
 		 return $this->content = $site_content;
 	}
@@ -44,13 +47,17 @@ class image{
 	// 抓取图片URL
 	private function get_images_url(){
 		/*利用正则表达式得到图片链接*/ 
-		 $reg_tag = '/<img.*?\"([^\"]*(jpg|bmp|jpeg|gif|png)).*?>/'; 
-		 $ret = preg_match_all($reg_tag, $this->get_content(), $match_result); 
-		 return $this->revise_site($match_result[1]); 
+		 $reg_tag1 = '/<img.*?\"([^\"]*(jpg|bmp|jpeg|gif|png)).*?>/';
+		 $reg_tag2 = '/\/\/[^"\)]+\.(jpg|bmp|jpeg|gif|png)/'; 
+		 $ret = preg_match_all($reg_tag1, $this->get_content(), $match_result1); 
+		 $ret = preg_match_all($reg_tag2, $this->get_content(), $match_result2); 
+		 // return $this->revise_site($match_result[1]); 
+		 return $this->revise_site(array_merge($match_result1[1],$match_result2[0])); 
 	}
 
-	// 对图片链接进行修正 
+	// 对图片链接进行修正(补全域名)
 	private function revise_site($site_list){
+		$return_list = [];
 		 foreach($site_list as $site_item) { 
 			  if (preg_match('/^http/', $site_item)) { 
 			   $return_list[] = $site_item; 
@@ -149,8 +156,9 @@ class image{
 }
 
 // 使用方法
-//(new image('https://www.raiing.com/','./images/taobao/'))->run();
-// (new image('./images.data','./images/taobao/'))->run();
+//(new image('https://www.raiing.com/','./images/raiing/'))->run();
+ //(new image('./images.data','./images/taobao/'))->run();
 // (new image('https://www.baidu.com/','./images/baidu/'))->run();
-// (new image('https://www.jd.com/','./images/jd/'))->run();
-(new image('https://www.taobao.com/','./images/taobao/'))->run();
+(new image('https://www.jd.com/','./images/jd/'))->run();
+// (new image('https://www.taobao.com/','./images/taobao/'))->run();
+// (new image('http://www.yhd.com/','./images/yhd/'))->run();
